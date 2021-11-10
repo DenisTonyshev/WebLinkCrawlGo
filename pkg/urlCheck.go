@@ -7,14 +7,6 @@ import (
 )
 
 var mu sync.Mutex
-var MainMap = make(map[string]bool)
-
-type UrlSchema interface {
-	CheckUrl(v interface{}, tempCrawlMap map[string]bool)
-}
-type Saver struct {
-	save Save
-}
 
 func CheckUrl(v interface{}, tempCrawlMap map[string]bool) {
 	var strVal string
@@ -27,7 +19,10 @@ func CheckUrl(v interface{}, tempCrawlMap map[string]bool) {
 		}
 
 		mu.Lock()
-		SaveToMap(strVal, tempCrawlMap, MainMap)
+		err = fileSaver.Save(strVal)
+		if err != nil {
+			return
+		}
 		mu.Unlock()
 	}
 }

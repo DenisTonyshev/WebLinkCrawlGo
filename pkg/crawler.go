@@ -1,14 +1,20 @@
 package pkg
 
-type Crawler interface {
-	Run()
-}
+import "sync"
 
-var ConcurrentRequestsNmb = 2
+var ConcurrentRequestsNmb = 1000
 
-func Run(urls []string) {
-	tempCrawlMap := make(map[string]bool)
+func Run(urls []string, saver FileSaver) {
+	saver.tempMap = make(map[string]bool)
 	mainCH := make(chan map[string]interface{}, ConcurrentRequestsNmb)
-	go GetJson(urls, mainCH)
-	ParseJsons(mainCH, tempCrawlMap)
+	var wg sync.WaitGroup
+	for _, url := range urls {
+		wg.Add(1)
+		go GetJson(url, mainCH, &wg)
+	}
+	go func() {
+		wg.Wait()
+		close(mainCH)
+	}()
+	ParseJsons(mainCH, saver)
 }

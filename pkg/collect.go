@@ -1,9 +1,5 @@
 package pkg
 
-type Collector interface {
-	CollectToArray()
-}
-
 func CollectToArray(collectedMap map[string]bool) []string {
 	var keys []string
 

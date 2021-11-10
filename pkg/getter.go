@@ -4,28 +4,45 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 )
 
-type GetterInterface interface {
-	Get(urls []string, ch chan map[string]interface{})
-}
-
-func GetJson(urls []string, ch chan map[string]interface{}) {
-	for _, u := range urls {
-		resp, err := http.Get(u)
-
-		if err != nil {
-			fmt.Print("ERROR ")
-			fmt.Println(err)
-		}
-
-		var target map[string]interface{}
-		err = json.NewDecoder(resp.Body).Decode(&target)
-
-		if err != nil || target == nil || len(target) <= 0 {
-			continue
-		}
-		ch <- target
+func GetJson(url string, ch chan map[string]interface{}, wg *sync.WaitGroup) {
+	defer wg.Done()
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Print("ERROR ")
+		fmt.Println(err)
 	}
-	close(ch)
+	var target map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&target)
+	if err != nil || target == nil || len(target) <= 0 {
+		return
+	}
+	ch <- target
 }
+
+//
+//innerChan := make(chan struct{}, 2)
+//for _, u := range urls {
+//innerChan <- struct{}{}
+//go func(chan struct{}) {
+//resp, err := http.Get(u)
+//
+//if err != nil {
+//fmt.Print("ERROR ")
+//fmt.Println(err)
+//}
+//
+//var target map[string]interface{}
+//err = json.NewDecoder(resp.Body).Decode(&target)
+//
+//if err != nil || target == nil || len(target) <= 0 {
+//<-innerChan
+//return
+//}
+//ch <- target
+//<-innerChan
+//}(innerChan)
+//}
+//close(ch)
