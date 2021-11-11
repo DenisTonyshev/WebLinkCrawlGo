@@ -8,7 +8,7 @@ import (
 
 var mu sync.Mutex
 
-func CheckUrl(v interface{}, tempCrawlMap map[string]bool) {
+func CheckUrl(v interface{}, saver FileSaver) {
 	var strVal string
 	var ok bool
 
@@ -19,7 +19,7 @@ func CheckUrl(v interface{}, tempCrawlMap map[string]bool) {
 		}
 
 		mu.Lock()
-		err = fileSaver.Save(strVal)
+		err = saver.Save(strVal)
 		if err != nil {
 			return
 		}

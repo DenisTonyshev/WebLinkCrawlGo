@@ -2,7 +2,7 @@ package pkg
 
 import "sync"
 
-var ConcurrentRequestsNmb = 1000
+var ConcurrentRequestsNmb = 2
 
 func Run(urls []string, saver FileSaver) {
 	saver.tempMap = make(map[string]bool)
